@@ -1,0 +1,26 @@
+{
+  "name": "FireWeather",
+  "version": "1.0",
+  "description": "A little simple weather app for Firefox OS",
+  "launch_path": "/app.html",
+  "icons":{
+    "128":"/icons/icon_128.png",
+    "60":"/icons/icon_60.png"
+  },
+  "permissions": {
+    "desktop-notification": {
+      "description": "To show notifications"
+    },
+    "geolocation": {
+      "description": "Marking out user location"
+    },
+    "storage":{
+      "description":"Store your configurations and locations"
+    }
+  },
+  "developer": {
+    "name": "Michel Wilhelm",
+    "url": "http://michelw.in"
+  },
+  "orientation": "portrait-primary"
+}
