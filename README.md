@@ -13,12 +13,10 @@ Front and backend developer since 2004
 Thanks to...
 ============
 
-[Mozilla Brasil][1]
-[Firefox OS][2]
-[Campus Party 2014][3]
-[World Weather Online (free weather API)][4]
+[Mozilla Brasil][http://mozillabrasil.org.br/]
 
-  [1] : http://mozillabrasil.org.br/
-  [2] : http://www.mozilla.org/en-US/firefox/os/
-  [3] : http://www.campus-party.com.br/2014/index.html
-  [4] : http://www.worldweatheronline.com/
+[Firefox OS][http://www.mozilla.org/en-US/firefox/os/]
+
+[Campus Party 2014][http://www.campus-party.com.br/2014/index.html]
+
+[World Weather Online (free weather API)][http://www.worldweatheronline.com/]
