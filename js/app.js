@@ -68,6 +68,8 @@ var FireWeather = {
                       if (e.which == enterKey){
                           FireWeather.geonamesSearch();
                       }
+                  }).blur(function(e){
+                      FireWeather.geonamesSearch();
                   });
 
                   $('#searchExec').click(function(){
