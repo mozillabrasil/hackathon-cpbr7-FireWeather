@@ -6,29 +6,11 @@ var FireWeather = {
     timeoutId:0,
     geonameUsername:'michelwilhelm',
     defaultLang:'en',
-    database:'FireWeather',
-    dbRequest:null,
-    conection:null,
-    indexedDB:{},
     db:{
         DB_STORE_NAME : "Locations",
         DB_NAME       : "FireWeather",
         DB_VERSION    : 1,
         db            : null,
-
-        getObjectStore:function(sysid) 
-        {   
-            var tx = FireWeather.db.db.transaction(store_name, mode);
-            return tx.objectStore(store_name);
-        },
-
-        clearObjectStore:function(sysid) 
-        {
-        },
-
-        getBlob:function(key, store, success_callback) 
-        {
-        },
 
         addLocation:function(name, country, sysid, lat, lng)
         {
@@ -49,8 +31,70 @@ var FireWeather = {
                 localStorage.Locations = JSON.stringify(json);
             }
             FireWeather.updateLocationList();
+            FireWeather.loadForecast($('a[data-sysid='+sysid+']'));
         },
 
+    },
+
+    loadSearchForm:function() 
+    { 
+
+        $('#btnDeleteLocation').hide();
+        $('#locationName').html('Add a new location');
+
+        var xhr = new XMLHttpRequest({
+            mozSystem: true
+        });
+
+        xhr.open("GET", "source/searchTpl.html", true);
+        xhr.onload = function (e) {
+          if (xhr.readyState === 0) {
+              $('#mainContent')
+                .html('')
+                .addClass('loading')
+                .append($('<progress></progress>').addClass('progress'));
+          } else if (xhr.readyState === 4) {
+              if (xhr.status === 200) {
+                  $('#mainContent').html(xhr.responseText);
+                  
+                  $('#searchClear').click(function(){
+                    $('#search').val('');
+                  });
+
+                  $('#search').click(function(e){
+                    window.location='#content';
+                  }).keyup(function(e) {
+                      var enterKey = 13;
+                      if (e.which == enterKey){
+                          FireWeather.geonamesSearch();
+                      }
+                  });
+
+                  $('#searchExec').click(function(){
+                    FireWeather.geonamesSearch()
+                  });
+              }
+          }
+        };
+        xhr.send(null);
+    },
+    
+    removeLocation:function(sysid)
+    {
+        var json = $.parseJSON(localStorage.Locations);
+        for (i=0;i<json.length;i++) {
+            if (json[i].sysid==sysid) {
+              console.log('hue');
+              json.splice(i, 1);
+            }
+        }
+        localStorage.Locations = JSON.stringify(json);
+
+        localStorage.removeItem("defaultLocation");
+        FireWeather.updateLocationList();
+        FireWeather.loadSearchForm();
+        
+        //window.location='#drawer';
     },
 
     updateLocationList:function()
@@ -73,12 +117,16 @@ var FireWeather = {
                 })
                 .html(value.name+'/'+value.country)
                 .click(function(e){
+                    window.location='#content';
                     FireWeather.loadForecast(this)
                 });
 
                 var li = $('<li></li>').attr({
                     id:'li_'+value.sysid
-                }).append(a);
+                });
+
+                li.append(a);
+        
 
                 $('#locationList').append(li);
             }
@@ -87,52 +135,77 @@ var FireWeather = {
 
     loadForecast:function(o)
     {
+
+        $('#btnDeleteLocation').show();
+        localStorage.defaultLocation = $(o).attr('data-sysid');
+        FireWeather.defaultLocation = localStorage.defaultLocation;
+        
         $('#mainContent')
             .html('')
             .addClass('loading')
             .append($('<progress></progress>').addClass('progress'));
 
         $('#locationName').html($(o).attr('data-name')+'/'+$(o).attr('data-country'));
+
+        FireWeather.getJSONP('http://api.worldweatheronline.com/free/v1/weather.ashx?q='+$(o).attr('data-lat')+','+$(o).attr('data-lng')+'&format=json&num_of_days=5&callback=?&key=ekwcg8tgm6y5t2bre925r9t5', function(response){
+            if (response.data) {
+                var condition = response.data.current_condition[0];
+                var xhr = new XMLHttpRequest({
+                    mozSystem: true
+                });
+
+                xhr.open("GET", "source/weatherTpl.html", true);
+                xhr.onload = function (e) {
+                  if (xhr.readyState === 4) {
+                      if (xhr.status === 200) {
+                          $('#mainContent').html(xhr.responseText);
+                          
+                          $('.weatherTpl .temp').html(condition.temp_C+'°');
+                          $('.weatherTpl .image').css({
+                              'background': 'url('+'icons/weather/'+condition.weatherCode+'.png'+') no-repeat 50% 50%',
+                              'height' : '108px'
+                          });
+                          $('#cloudcover').val(condition.cloudcover);
+                          $('#humidity').html(condition.humidity+"%");
+                          $('#pressure').html(condition.pressure+"hPa");
+                          $('#precipitation').html(condition.precipMM+"mm");
+                          $('#wndDir').html(condition.winddir16Point);
+                          $('#wndSpeed').html(condition.windspeedKmph + "Km/h");
+                          $('#visibility').html(condition.visibility+"Km");
+
+                          $('#btnDeleteLocation').attr({'data-sysid':$(o).attr('data-sysid')});
+                      }
+                  }
+                };
+                xhr.send(null);
+            }
+        });
+
+
     },
 
     init:function()
     {
         FireWeather.updateLocationList();
 
-        if (FireWeather.defaultLocation==null) {
+        $('#btnAddLocation').click(function(){
+            FireWeather.loadSearchForm();
+        });
 
-            var xhr = new XMLHttpRequest({
-                mozSystem: true
-            });
+        $('#btnDeleteLocation').click(function(){
+            FireWeather.removeLocation($(this).attr('data-sysid'));
+        });
 
-            xhr.open("GET", "source/searchTpl.html", true);
-            xhr.onload = function (e) {
-              if (xhr.readyState === 0) {
-                  $('#mainContent')
-                    .html('')
-                    .addClass('loading')
-                    .append($('<progress></progress>').addClass('progress'));
-              } else if (xhr.readyState === 4) {
-                  if (xhr.status === 200) {
-                      $('#mainContent').html(xhr.responseText);
-                      $('#searchClear').click(function(){
-                        $('#search').val('');
-                      })
-
-                      $('#searchExec').click(function(){
-                        FireWeather.geonamesSearch()
-                      });
-                  }
-              }
-            };
-            xhr.send(null);
+        if (localStorage.defaultLocation != 'undefined') {
+            FireWeather.loadForecast($('a[data-sysid='+localStorage.defaultLocation+']'));
+        } else {
+            FireWeather.loadSearchForm();
         }
     },
     addToMyList:function(o)
     {
         $('#locationName').html($(o).attr('data-name')+'/'+$(o).attr('data-country'));
 
-        //addLocation:function(name, country, sysid, lat, lng)
         FireWeather.db.addLocation(
             $(o).attr('data-name'),
             $(o).attr('data-country'),
@@ -151,13 +224,13 @@ var FireWeather = {
                   var a = $('<a></a>')
                   .attr({
                     'data-country': v.countryName,
-                    'data-name':v.adminName2,
+                    'data-name':v.name,
                     'data-lat':parseFloat(v.lat),
                     'data-lng':parseFloat(v.lng),
-                    'data-sysid':v.adminId2,
+                    'data-sysid':v.geonameId,
                     'href':'javascript:;'
                   });
-                  a.append($('<p></p>').html(v.adminName2));
+                  a.append($('<p></p>').html(v.name));
                   a.append($('<p></p>').html(v.countryName));
                   a.click(function(){
                       FireWeather.addToMyList(this);
@@ -172,6 +245,8 @@ var FireWeather = {
       });
     },
     getJSONP:function(url, success){
+        $('#loadAutoComplete ul li').remove().append($('<progress></progress>').addClass('progress'));
+
         var ud = 'json'+(Math.random()*100).toString().replace(/\./g,'');
         window[ud]= function(o){
             success&&success(o);
