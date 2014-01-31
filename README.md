@@ -7,8 +7,8 @@ Author
 ======
 
 Michel Wilhelm michelwilhelm [at] gmail [dot] com
-
-Front and backend developer since 2004
+Facebook: <https://www.facebook.com/m14038179>
+Twitter: <http://twitter.com/michelwilhelm>
 
 Thanks to...
 ============
