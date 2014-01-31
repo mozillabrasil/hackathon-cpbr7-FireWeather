@@ -20,3 +20,7 @@ Firefox OS: <http://www.mozilla.org/en-US/firefox/os/>
 Campus Party 2014: <http://www.campus-party.com.br/2014/index.html>
 
 World Weather Online (free weather API): <http://www.worldweatheronline.com/>
+
+LICENSE
+=======
+GNU General License <https://github.com/michelwilhelm/FireWeather/blob/master/LICENSE.md>
