@@ -1,11 +1,13 @@
 {
   "name": "FireWeather",
-  "version": "1.0",
+  "version": "1.1",
   "description": "A little simple weather app for Firefox OS",
   "launch_path": "/app.html",
   "icons":{
     "128":"/icons/icon_128.png",
-    "60":"/icons/icon_60.png"
+    "90":"/icons/icon_90.png",
+    "60":"/icons/icon_60.png",
+    "32":"/icons/icon_32.png"
   },
   "permissions": {
     "desktop-notification": {

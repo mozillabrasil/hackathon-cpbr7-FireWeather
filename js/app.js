@@ -138,52 +138,55 @@ var FireWeather = {
     loadForecast:function(o)
     {
 
-        $('#btnDeleteLocation').show();
-        localStorage.defaultLocation = $(o).attr('data-sysid');
-        FireWeather.defaultLocation = localStorage.defaultLocation;
-        
-        $('#mainContent')
-            .html('')
-            .addClass('loading')
-            .append($('<progress></progress>').addClass('progress'));
+        if ($(o).attr('data-sysid')) {
 
-        $('#locationName').html($(o).attr('data-name')+'/'+$(o).attr('data-country'));
+            $('#btnDeleteLocation').show();
+            localStorage.defaultLocation = $(o).attr('data-sysid');
+            FireWeather.defaultLocation = localStorage.defaultLocation;
+            
+            $('#mainContent')
+                .html('')
+                .addClass('loading')
+                .append($('<progress></progress>').addClass('progress'));
 
-        FireWeather.getJSONP('http://api.worldweatheronline.com/free/v1/weather.ashx?q='+$(o).attr('data-lat')+','+$(o).attr('data-lng')+'&format=json&num_of_days=5&callback=?&key=ekwcg8tgm6y5t2bre925r9t5', function(response){
-            if (response.data) {
-                var condition = response.data.current_condition[0];
-                var xhr = new XMLHttpRequest({
-                    mozSystem: true
-                });
+            $('#locationName').html($(o).attr('data-name')+'/'+$(o).attr('data-country'));
 
-                xhr.open("GET", "source/weatherTpl.html", true);
-                xhr.onload = function (e) {
-                  if (xhr.readyState === 4) {
-                      if (xhr.status === 200) {
-                          $('#mainContent').html(xhr.responseText);
-                          
-                          $('.weatherTpl .temp').html(condition.temp_C+'°');
-                          $('.weatherTpl .image').css({
-                              'background': 'url('+'icons/weather/'+condition.weatherCode+'.png'+') no-repeat 50% 50%',
-                              'height' : '108px'
-                          });
-                          $('#cloudcover').val(condition.cloudcover);
-                          $('#humidity').html(condition.humidity+"%");
-                          $('#pressure').html(condition.pressure+"hPa");
-                          $('#precipitation').html(condition.precipMM+"mm");
-                          $('#wndDir').html(condition.winddir16Point);
-                          $('#wndSpeed').html(condition.windspeedKmph + "Km/h");
-                          $('#visibility').html(condition.visibility+"Km");
+            FireWeather.getJSONP('http://api.worldweatheronline.com/free/v1/weather.ashx?q='+$(o).attr('data-lat')+','+$(o).attr('data-lng')+'&format=json&num_of_days=5&callback=?&key=ekwcg8tgm6y5t2bre925r9t5', function(response){
+                if (response.data) {
+                    var condition = response.data.current_condition[0];
+                    var xhr = new XMLHttpRequest({
+                        mozSystem: true
+                    });
 
-                          $('#btnDeleteLocation').attr({'data-sysid':$(o).attr('data-sysid')});
+                    xhr.open("GET", "source/weatherTpl.html", true);
+                    xhr.onload = function (e) {
+                      if (xhr.readyState === 4) {
+                          if (xhr.status === 200) {
+                              $('#mainContent').html(xhr.responseText);
+                              
+                              $('.weatherTpl .temp').html(condition.temp_C+'°');
+                              $('.weatherTpl .image').css({
+                                  'background': 'url('+'icons/weather/'+condition.weatherCode+'.png'+') no-repeat 50% 50%',
+                                  'height' : '108px'
+                              });
+                              $('#cloudcover').val(condition.cloudcover);
+                              $('#humidity').html(condition.humidity+"%");
+                              $('#pressure').html(condition.pressure+"hPa");
+                              $('#precipitation').html(condition.precipMM+"mm");
+                              $('#wndDir').html(condition.winddir16Point);
+                              $('#wndSpeed').html(condition.windspeedKmph + "Km/h");
+                              $('#visibility').html(condition.visibility+"Km");
+
+                              $('#btnDeleteLocation').attr({'data-sysid':$(o).attr('data-sysid')});
+                          }
                       }
-                  }
-                };
-                xhr.send(null);
-            }
-        });
-
-
+                    };
+                    xhr.send(null);
+                }
+            });
+        } else {
+           FireWeather.loadSearchForm();
+        }
     },
 
     init:function()
@@ -198,10 +201,10 @@ var FireWeather = {
             FireWeather.removeLocation($(this).attr('data-sysid'));
         });
 
-        if (localStorage.defaultLocation != 'undefined') {
-            FireWeather.loadForecast($('a[data-sysid='+localStorage.defaultLocation+']'));
-        } else {
+        if (localStorage.defaultLocation == "undefined") {
             FireWeather.loadSearchForm();
+        } else {
+            FireWeather.loadForecast($('a[data-sysid='+localStorage.defaultLocation+']'));
         }
     },
     addToMyList:function(o)
